@@ -227,7 +227,7 @@ def engaged_users_per_application(df):
     applications = ['Social Media','Youtube','Netflix','Google','Email','Gaming','Other']
 
     for app in applications:
-        new_df = bivariate_dataframe[['Customers',app]].sort_values(by = app, ascending = False)
+        new_df = df[['Customers',app]].sort_values(by = app, ascending = False)
         top_ten_customers = new_df['Customers'].head(10).values.tolist()
 
         print(f'The top ten customers of {app} application')
