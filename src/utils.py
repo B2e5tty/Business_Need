@@ -182,6 +182,7 @@ def create_dataframe_for_bivariate(df):
     new_df['Total Volume'] = df['Total Volume']
     new_df.rename(columns={'Total DL (Bytes)':'Total DL/UL'}, inplace = True)
     
+    
     return new_df
 
 # function for scatter plot 
@@ -232,7 +233,9 @@ def engaged_users_per_application(df):
 
         print(f'The top ten customers of {app} application')
         print(f'{top_ten_customers} \n')
-
+        
+        
+        
 # functions for converting DL and UL columns into one
 def create_dataframe_DLUL(df):
     index = np.arange(0,7,1)
@@ -292,8 +295,3 @@ def dispersion_per_handsetType(df,col):
     plt.xlabel(col)
     plt.ylabel('Frequency')
     plt.show()    
-
-
-
-
-
