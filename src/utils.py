@@ -182,6 +182,7 @@ def create_dataframe_for_bivariate(df):
     new_df['Total Volume'] = df['Total Volume']
     new_df.rename(columns={'Total DL (Bytes)':'Total DL/UL'}, inplace = True)
     
+    
     return new_df
 
 # function for scatter plot 
@@ -232,3 +233,65 @@ def engaged_users_per_application(df):
 
         print(f'The top ten customers of {app} application')
         print(f'{top_ten_customers} \n')
+        
+        
+        
+# functions for converting DL and UL columns into one
+def create_dataframe_DLUL(df):
+    index = np.arange(0,7,1)
+    columns = df.select_dtypes(include=np.number).columns
+    index_columns = list(zip(index,columns))
+    columns_name = []
+    new_df = []
+    
+    for i,col in index_columns:
+        if i == 5:
+            new_df.append((df[col] + df[index_columns[i+1][1]]) /2)
+            columns_name.append((col.split('DL')[0]).strip())
+
+        elif i % 2 != 0 and (i > 0 and i < 5):
+            new_df.append((df[col] + df[index_columns[i+1][1]]) / 2)
+            columns_name.append((col.split('DL')[0]).strip())
+            
+        # elif i >= 5 and i % 2 != 0:
+        #     new_df.append(df[col] + df[index_columns[i+1][1]])
+        #     columns_name.append((col.split('UL')[0]).strip())
+
+    new_df = np.array(new_df)
+    new_df = pd.DataFrame(new_df).T
+    new_df.columns = columns_name
+    
+    new_df['MSISDN/Number'] = df['MSISDN/Number']
+    new_df['Handset Type'] = df['Handset Type']
+    new_df['Dur. (ms)'] = df['Dur. (ms)']
+    new_df.rename(columns={'TCP':'TCP DL/UL'}, inplace = True)
+    new_df.rename(columns={'Avg Bearer TP':'Avg Bearer TP DL/UL'}, inplace = True)
+    new_df.rename(columns={'Avg RTT':'Avg RTT DL/UL'}, inplace = True)
+    
+    
+
+    # new_df.rename(columns={'Total DL (Bytes)':'Total DL/UL'}, inplace = True)
+    
+    return new_df
+
+# function to plot the dispersion of top 20 handset types
+def dispersion_per_handsetType(df,col):
+    top20_handset = df.groupby('Handset Type')[col].mean().sort_values(ascending = False).head(20)
+    top20_handset_name = top20_handset.index
+    
+    print(f"The top 20 Handset type: {top20_handset}")
+    handset_general_experience = df[df['Handset Type'].isin(top20_handset_name)]
+    
+    color_palette = [
+        "#FF5733", "#33FF57", "#3357FF", "#F39C12", "#8E44AD",  # Bright Red, Green, Blue, Orange, Purple
+        "#FF33FF", "#33FFFF", "#FF5733", "#FFC300", "#C70039",  # Magenta, Cyan, Red, Yellow, Maroon
+        "#581845", "#900C3F", "#DAF7A6", "#900C3F", "#FFC300",  # Deep Purple, Burgundy, Light Green, Deep Maroon, Bright Yellow
+        "#1F618D", "#117A65", "#D68910", "#2ECC71", "#2980B9"   # Navy Blue, Teal, Amber, Emerald Green, Royal Blue
+    ]
+    
+    plt.figure(figsize=(12, 6))
+    sns.histplot(data=handset_general_experience, x=col, hue='Handset Type', bins=30, palette=color_palette)
+    plt.title('Distribution of Average Throughput for Top 20 Handset Types')
+    plt.xlabel(col)
+    plt.ylabel('Frequency')
+    plt.show()    
